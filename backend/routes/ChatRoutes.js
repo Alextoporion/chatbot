@@ -1,13 +1,15 @@
 const express = require('express');
 const router = express.Router();
-// Update your import line:
-const { createSession, getSessionMessages, getQueuedSessions, updateSessionStatus } = require('../controllers/ChatController');
 
+const { createSession, updateSessionStatus, getQueuedSessions, getSessionMessages } = require('../controllers/ChatController');
+const verifyToken = require('../middlewares/verifyToken');
+
+// 🟢 PUBLIC ROUTES: The customer widget uses these. No token required!
 router.post('/session', createSession);
-router.get('/session/:sessionId/messages', getSessionMessages);
-router.get('/sessions/queued', getQueuedSessions);
+router.get('/session/:id/messages', getSessionMessages); // 👈 REMOVED verifyToken HERE
 
-// ADD THIS NEW ROUTE:
-router.patch('/session/:sessionId/status', updateSessionStatus);
+// 🔴 PROTECTED ROUTES: Only logged-in agents can use these!
+router.get('/sessions/queued', verifyToken, getQueuedSessions);
+router.patch('/session/:id/status', verifyToken, updateSessionStatus);
 
 module.exports = router;

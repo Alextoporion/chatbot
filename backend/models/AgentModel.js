@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 
 const agentSchema = new mongoose.Schema({
     name: {
@@ -22,7 +21,7 @@ const agentSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['agent', 'admin'],
+        enum: ['agent', 'admin', 'superadmin'], // 👈 NEW: Added 'superadmin' to the allowed list
         default: 'agent'
     },
     status: {
@@ -33,23 +32,15 @@ const agentSchema = new mongoose.Schema({
     activeTicketCount: {
         type: Number,
         default: 0 // We will use this later to find the "least busy" agent
+    },
+    companyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Company',
+        // 👈 NEW: It is required for clients, but NOT for you (the Super Admin)
+        required: function () { return this.role !== 'superadmin'; }
     }
 }, {
     timestamps: true
 });
-
-// Encrypt password using bcrypt before saving to the database
-agentSchema.pre('save', async function(next) {
-    if (!this.isModified('password')) {
-        next();
-    }
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-});
-
-// Match user entered password to hashed password in database
-agentSchema.methods.matchPassword = async function(enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);
-};
 
 module.exports = mongoose.model('Agent', agentSchema);

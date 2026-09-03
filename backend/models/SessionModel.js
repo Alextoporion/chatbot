@@ -51,7 +51,8 @@ const sessionSchema = new Schema({
     closedAt: { 
         type: Date, 
         default: null 
-    }
+    },
+    companyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('SupportSession', sessionSchema);

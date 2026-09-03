@@ -23,13 +23,17 @@ const io = new Server(server, {
 });
 handleSockets(io);
 
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:3001'], // Add your dummy client URL here!
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/api/auth', authRoutes)
 
 app.get('/', (req, res) => {
-  res.send('Support Chat Server Running!');
+    res.send('Support Chat Server Running!');
 });
 app.use('/api/chat', chatRoutes);
 // Serve the widget file publicly
@@ -38,8 +42,8 @@ app.use(express.static('public'));
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Internal Server Error';
-    
-    if (statusCode === 500){
+
+    if (statusCode === 500) {
         console.error(`[Server Error] ${message}`, err.stack);
     }
 
@@ -52,5 +56,5 @@ app.use((err, req, res, next) => {
 
 // 5. USE server.listen INSTEAD OF app.listen
 server.listen(port, () => {
-  console.log(`Server & WebSockets listening on port ${port}`);
+    console.log(`Server & WebSockets listening on port ${port}`);
 });
