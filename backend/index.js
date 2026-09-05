@@ -22,9 +22,9 @@ const io = new Server(server, {
 });
 handleSockets(io);
 
-// ADDED LIVE DOMAIN TO CORS
+// ⚡️ FIXED: 'true' dynamically allows any client website to use your widget
 app.use(cors({
-    origin: [ 'https://chatbot.getsoko.app'], 
+    origin: true, 
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true
 }));
