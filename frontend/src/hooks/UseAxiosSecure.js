@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 const UseAxiosSecure = () => {
     const axiosSecure = axios.create({
-        baseURL: "http://localhost:8080/api",
+         baseURL: "https://chatbot.getsoko.app/api",
+        // baseURL: "http://localhost:8080/api",
         withCredentials: true, // Automatically sends HTTP-only token cookie
     });
     const navigate = useNavigate();

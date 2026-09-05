@@ -3,7 +3,8 @@ import { io } from 'socket.io-client';
 import UseAuth from '../hooks/UseAuth';
 import UseAxiosSecure from '../hooks/UseAxiosSecure';
 
-const BACKEND_URL = 'http://localhost:8080';
+const BACKEND_URL = 'https://chatbot.getsoko.app';
+// const BACKEND_URL = 'http://localhost:8080';
 
 const Dashboard = () => {
   const { user, logOutUser } = UseAuth();

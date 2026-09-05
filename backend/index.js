@@ -1,8 +1,9 @@
 const express = require('express');
-const http = require('http'); // 1. IMPORT CORE HTTP MODULE
-const { Server } = require('socket.io'); // 2. IMPORT SOCKET.IO
+const http = require('http'); 
+const { Server } = require('socket.io'); 
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const path = require('path'); 
 require('dotenv').config();
 require('./config/db');
 const handleSockets = require('./sockets/socketHandler');
@@ -11,34 +12,40 @@ const authRoutes = require('./routes/AuthRoutes');
 const app = express();
 const port = process.env.PORT || 8080;
 
-// 3. CREATE HTTP SERVER WRAPPING EXPRESS
 const server = http.createServer(app);
 
-// 4. INITIALIZE SOCKET.IO WITH CORS
 const io = new Server(server, {
     cors: {
-        origin: "*", // You can lock this down to your specific frontend URLs later
+        origin: "*", 
         methods: ["GET", "POST"]
     }
 });
 handleSockets(io);
 
+// ADDED LIVE DOMAIN TO CORS
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'], // Add your dummy client URL here!
+    origin: [ 'https://chatbot.getsoko.app'], 
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: true
 }));
+
 app.use(express.json());
 app.use(cookieParser());
-app.use('/api/auth', authRoutes)
 
-app.get('/', (req, res) => {
-    res.send('Support Chat Server Running!');
-});
+// 1. API ROUTES FIRST
+app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
-// Serve the widget file publicly
-app.use(express.static('public'));
 
+// 2. STATIC FOLDERS SECOND
+app.use(express.static('public')); // Serves widget.js
+app.use(express.static(path.join(__dirname, 'build'))); // Serves React files
+
+// 3. REACT WILDCARD ROUTE LAST (Very Important)
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+// 4. ERROR HANDLER
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Internal Server Error';
@@ -54,7 +61,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-// 5. USE server.listen INSTEAD OF app.listen
 server.listen(port, () => {
     console.log(`Server & WebSockets listening on port ${port}`);
 });
